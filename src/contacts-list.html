@@ -1,0 +1,117 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="contacts-list">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+
+      .table {
+        width: 100%;
+      }
+
+      .table th {
+        text-align: left;
+      }
+    </style>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="[[rootPath]]:page" data="{{routeData}}" tail="{{subroute}}">
+    </app-route>
+    <app-route route="{{subroute}}" pattern="/:category" data="{{subrouteData}}">
+    </app-route>
+
+    <div class="card">
+      <h1>All Contacts</h1>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <template is="dom-repeat" items="{{contactsData}}" filter="isCategory" observe="category">
+            <tr>
+              <td>{{item.name}}</td>
+              <td>{{item.email}}</td>
+              <td>{{item.phone}}</td>
+              <td>
+                <a href$="/view/{{item.id}}">view</a>&nbsp;&nbsp;&nbsp;
+                <a href$="/edit/{{item.id}}">edit</a>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+
+    </div>
+  </template>
+
+  <script>
+    class ContactsList extends Polymer.Element {
+      static get is() { return 'contacts-list'; }
+
+      static get properties() {
+        return {
+          contactsData: {
+            type: Array,
+            notify: true
+          },
+          category: {
+            type: String,
+            value: '', 
+            reflectToAttribute: true,
+            observer: '_categoryChanged'
+          }
+        }
+      }
+
+      static get observers() {
+        return [
+          '_routeCategoryChanged(subrouteData.category)',
+        ];
+      }
+
+      _routeCategoryChanged(category) {
+        this.set('category', category || '');
+      }
+
+      _categoryChanged(category) {
+        this.set('contactsData', [...this.contactsData]);
+      }
+
+      isCategory(item) {
+        if (this.category && this.category !== '') {
+          return item.category == this.category;
+        }
+        return true;
+      }
+    }
+
+    window.customElements.define(ContactsList.is, ContactsList);
+  </script>
+</dom-module>

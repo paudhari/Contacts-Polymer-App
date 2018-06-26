@@ -1,0 +1,90 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="contacts-view">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+    </style>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="[[rootPath]]:page" data="{{routeData}}" tail="{{subroute}}">
+    </app-route>
+    <app-route route="{{subroute}}" pattern="/:id" data="{{subrouteData}}">
+    </app-route>
+
+    <div class="card">
+      <a href$="edit/{{id}}" style="float: right;">Edit</a>
+      <h1>Contact</h1>
+      <p><b>Name</b>: {{currentContact.name}}</p>
+      <p><b>Email</b>: {{currentContact.email}}</p>
+      <p><b>Phone</b>: {{currentContact.phone}}</p>
+    </div>
+  </template>
+
+  <script>
+    class ContactsView extends Polymer.Element {
+      static get is() { return 'contacts-view'; }
+
+      static get properties() {
+        return {
+          contactsData: {
+            type: Array,
+            notify: true
+          },
+          route: Object,
+          id: {
+            type: String,
+            reflectToAttribute: true,
+            observer: '_idChanged',
+          },
+          currentContact: {
+            type: Object,
+            value: {}
+          }
+        }
+      }
+
+       static get observers() {
+        return [
+          '_routeIdChanged(subrouteData.id)',
+        ];
+      }
+
+      _routeIdChanged(id) {
+        this.id = id || '';
+      }
+
+      _idChanged(id) {
+        if (this.contactsData[id]) {
+          this.set('currentContact', Object.assign({}, this.contactsData[id]));
+        }
+      }
+
+      _idChanged(id) {
+        console.log(parseInt(id), this.contactsData, this.contactsData[parseInt(id)]);
+        if(this.contactsData[parseInt(id)]) {
+          this.set('currentContact', Object.assign({}, this.contactsData[id]));
+        }
+      }
+    }
+
+    window.customElements.define(ContactsView.is, ContactsView);
+  </script>
+</dom-module>
